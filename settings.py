@@ -16,3 +16,9 @@ MASSCAN_PATH = os.path.join(BASE_DIR, 'bin', 'windows_64', 'masscan.exe') if sys
 
 # 存放开放80端口IP文件夹
 OPEN_80_FILE_DIRS = os.path.join(BASE_DIR, 'res', 'open80_dir')
+
+# 每秒发的数据包个数
+RATE = 100000
+
+# HOSTS对比的时候线程数
+COMPARISON_THREAD = 1000

@@ -18,7 +18,7 @@ def save_domian_to_file(futuer):
         with open(COMPARISON_DOMAIN, 'a+', encoding='utf-8') as comparison_domain:
             comparison_domain.write('%s\t%s\n' % (ip, domain))
         lock.release()
-        print('%s\t%s对比成功' % (ip, domain))
+        print('[>]%s\t%s对比成功' % (ip, domain))
 
 
 def handel_domain(domain, ip):
@@ -35,9 +35,9 @@ def handel_domain(domain, ip):
     }
     domain = domain.strip()
     ip = ip.strip()
-    print('正在对比:%s------------>%s' % (ip, domain))
+    print('[>]正在对比:%s------------>%s' % (ip, domain))
     try:
-        response = requests.get(url='http://{0}'.format(ip), headers=headers)
+        response = requests.get(url='http://{0}'.format(ip), headers=headers, timeout=2)
     except Exception as e:
         response = lambda x: x
         response.status_code = 502
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     domain_file = open(DOMAIN_FILE_PATH, 'r', encoding='utf-8')
     # open80端口的所有文件
     open_80_files = [os.path.join(OPEN_80_FILE_DIRS, i) for i in os.listdir(OPEN_80_FILE_DIRS)]
-    pool = ThreadPoolExecutor(100)
+    pool = ThreadPoolExecutor(COMPARISON_THREAD)
     for domain in domain_file.readlines():
         for ip_file_path in open_80_files:
             with open(ip_file_path, 'r') as ip_file:
@@ -59,4 +59,4 @@ if __name__ == '__main__':
                     futuer.add_done_callback(save_domian_to_file)
 
     pool.shutdown()
-    print('对比域名结果完成，请查看%s' % COMPARISON_DOMAIN)
+    print('[>]对比域名结果完成，请查看%s' % COMPARISON_DOMAIN)
