@@ -37,7 +37,7 @@ def main():
     globals_ip_file = open(GLOBALLS_IP_FILE_PATH, 'r')
     for i in globals_ip_file.readlines():
         pool.submit(scan_ip, hosts=i)
-
+    pool.shutdown()
 
 if __name__ == '__main__':
     main()
