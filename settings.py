@@ -1,4 +1,5 @@
 import os, platform
+
 system = platform.system()
 
 # 程序根目录
@@ -20,5 +21,7 @@ OPEN_80_FILE_DIRS = os.path.join(BASE_DIR, 'res', 'open80_dir')
 # 每秒发的数据包个数
 RATE = 100000
 
+# 扫描进程数量
+SCAN_PROCESS = 50
 # HOSTS对比的时候线程数
 COMPARISON_THREAD = 1000

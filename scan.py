@@ -1,6 +1,6 @@
 from settings import *
 import platform, os, subprocess, sys
-
+from concurrent.futures import ProcessPoolExecutor
 
 def scan_ip(hosts, port=80):
     """
@@ -33,9 +33,10 @@ def scan_ip(hosts, port=80):
 
 
 def main():
+    pool = ProcessPoolExecutor(SCAN_PROCESS)
     globals_ip_file = open(GLOBALLS_IP_FILE_PATH, 'r')
     for i in globals_ip_file.readlines():
-        scan_ip(hosts=i)
+        pool.submit(scan_ip, hosts=i)
 
 
 if __name__ == '__main__':
