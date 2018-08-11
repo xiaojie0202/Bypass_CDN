@@ -1,11 +1,11 @@
-import sys
-import os
 import requests
 from settings import *
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 
 lock = Lock()
+
+comparison_domain_file = open(COMPARISON_DOMAIN, 'a+', encoding='utf-8')
 
 
 def save_domian_to_file(futuer):
@@ -14,14 +14,16 @@ def save_domian_to_file(futuer):
     ip = data['ip']
     domain = data['domain']
     if respones.status_code == 200:
-        lock.acquire()
-        with open(COMPARISON_DOMAIN, 'a+', encoding='utf-8') as comparison_domain:
-            comparison_domain.write('%s\t%s\n' % (ip, domain))
-        lock.release()
-        print('[>]%s\t%s对比成功' % (ip, domain))
+        if respones.text.find(data['gzj']) != -1:
+            lock.acquire()
+            comparison_domain_file.write('%s\t%s\n' % (ip, domain))
+            comparison_domain_file.flush()
+            print('[>]%s\t%s对比成功' % (ip, domain))
+            print('写入文件', '%s\t%s\n' % (ip, domain))
+            lock.release()
 
 
-def handel_domain(domain, ip):
+def handel_domain(domain, ip, gjz):
     """
     访问指定ip的80端口，并绕过cdn使用指定host取访问
     :param domain:
@@ -37,11 +39,11 @@ def handel_domain(domain, ip):
     ip = ip.strip()
     print('[>]正在对比:%s------------>%s' % (ip, domain))
     try:
-        response = requests.get(url='http://{0}'.format(ip), headers=headers, timeout=2)
+        response = requests.get(url='http://{0}'.format(ip), headers=headers)
     except Exception as e:
         response = lambda x: x
         response.status_code = 502
-    data = {'response': response, 'ip': ip, 'domain': domain}
+    data = {'response': response, 'ip': ip, 'domain': domain, 'gzj': gjz}
     return data
 
 
@@ -51,12 +53,12 @@ if __name__ == '__main__':
     # open80端口的所有文件
     open_80_files = [os.path.join(OPEN_80_FILE_DIRS, i) for i in os.listdir(OPEN_80_FILE_DIRS)]
     pool = ThreadPoolExecutor(COMPARISON_THREAD)
-    for domain in domain_file.readlines():
+    for domain_gj in domain_file.readlines():
+        domain, gjz = domain_gj.strip().split('----')
         for ip_file_path in open_80_files:
             with open(ip_file_path, 'r') as ip_file:
                 for i in ip_file.readlines():
-                    futuer = pool.submit(handel_domain, domain=domain, ip=i)
+                    futuer = pool.submit(handel_domain, domain=domain, ip=i, gjz=gjz)
                     futuer.add_done_callback(save_domian_to_file)
-
     pool.shutdown()
     print('[>]对比域名结果完成，请查看%s' % COMPARISON_DOMAIN)

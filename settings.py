@@ -22,6 +22,6 @@ OPEN_80_FILE_DIRS = os.path.join(BASE_DIR, 'res', 'open80_dir')
 RATE = 100000
 
 # 扫描进程数量
-SCAN_PROCESS = 50
+SCAN_PROCESS = 5
 # HOSTS对比的时候线程数
 COMPARISON_THREAD = 1000
